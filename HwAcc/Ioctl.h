@@ -318,7 +318,10 @@ Environment:
 #define IOCTL_GPD_ENUM_ACPI \
     CTL_CODE( HWACC_TYPE, 0x970, METHOD_BUFFERED, FILE_READ_ACCESS )
 
-#endif
+#define IOCTL_GPD_BUILD_ACPI \
+    CTL_CODE( HWACC_TYPE, 0x970, METHOD_BUFFERED, FILE_READ_ACCESS )
+
+
 
 
 //Data struct definition
@@ -400,6 +403,11 @@ typedef struct _ACPI_NAMESPACE {
     };
 } ACPI_NAMESPACE, * PACPI_NAMESPACE;
 
+typedef struct {
+    ACPI_NAMESPACE* pAcpiNS;
+    UINT            uCount;
+    UINT            uLength;
+} ACPI_NS_DATA, * PACPI_NS_DATA;
 
 typedef struct {
     ULONG_PTR   Addr;
@@ -604,3 +612,5 @@ typedef struct _AML_SETUP_ {
 }AML_SETUP, *PAML_SETUP;
 
 typedef  ACPI_METHOD_ARG_COMPLEX*    PACPI_METHOD_ARG_COMPLEX;
+
+#endif
