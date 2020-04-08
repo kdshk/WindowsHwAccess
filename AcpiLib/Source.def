@@ -1,0 +1,38 @@
+LIBRARY
+EXPORTS
+	OpenAcpiService
+	CloseAcpiService
+	OpenAcpiDevice
+	LoadNotifiyMethod
+	UnloadNotifiyMethod
+	EvalAcpiNS
+	EvalAcpiNSAndParse
+	EvalAcpiNSOutput
+	EvalAcpiNSArgOutput
+	ReadAcpiMemory
+	QueryAcpiNS
+	GetMethod
+	ReleaseAcpiNS
+	QueryAcpiNSInLib
+	LoadAcpiObjects
+	SaveAcpiObjects
+	GetNamePath
+	GetNamePathFromPath
+	GetNameType
+	GetNameIntValue
+	GetNameStringValue
+	GetNameAddrFromPath
+	GetNameAddr
+	GetNameFromAddr
+	AslFromPath
+	GetArgsCount
+	PutIntArg
+	PutStringArg
+	PutBuffArg
+	EvalAcpiNSArgAndParse
+	FreeMemory
+	NotifyDevice
+	GetNSType
+	GetNSValue
+	GetRawData
+	
