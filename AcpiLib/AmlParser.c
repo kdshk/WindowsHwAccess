@@ -23,7 +23,7 @@ Environment:
 #include "mdmap.h"
 #include "namestack.h"
 #include "AmlParser.h"
-#include "../AcpiView/Acpi.h"
+#include "Acpi.h"
 
 #define NEXT_AML {(*lpAml) ++;}
 #define AML_PTR (*lpAml)

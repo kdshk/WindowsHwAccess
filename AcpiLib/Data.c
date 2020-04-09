@@ -199,7 +199,7 @@ Return Value:
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER) {
 			// for potentially memory corruption
-			assert(false);
+			//assert(false);
 		}
 	CloseFileHandle:
 		CloseHandle(hFile);

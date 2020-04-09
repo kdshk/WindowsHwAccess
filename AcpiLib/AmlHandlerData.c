@@ -23,7 +23,7 @@ Environment:
 #include "mdmap.h"
 #include "namestack.h"
 #include "AmlParser.h"
-#include "../AcpiView/Acpi.h"
+#include "Acpi.h"
 
 void NotUseOp(LPBYTE* lpAml)
 {
