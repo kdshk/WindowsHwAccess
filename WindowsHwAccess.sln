@@ -27,7 +27,7 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Debug|ARM.ActiveCfg = Debug|Win32
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Debug|ARM64.ActiveCfg = Debug|Win32
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Debug|x64.ActiveCfg = Debug|x64
@@ -41,7 +41,7 @@ Global
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Release|x64.Build.0 = Release|x64
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Release|x86.ActiveCfg = Release|Win32
 		{BA47C298-BB09-4D40-8197-1FF1EC55AC02}.Release|x86.Build.0 = Release|Win32
-		{5D74F1CA-7A53-4CBC-ADC4-E484814C4C6A}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{5D74F1CA-7A53-4CBC-ADC4-E484814C4C6A}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{5D74F1CA-7A53-4CBC-ADC4-E484814C4C6A}.Debug|ARM.ActiveCfg = Debug|ARM
 		{5D74F1CA-7A53-4CBC-ADC4-E484814C4C6A}.Debug|ARM.Build.0 = Debug|ARM
 		{5D74F1CA-7A53-4CBC-ADC4-E484814C4C6A}.Debug|ARM.Deploy.0 = Debug|ARM

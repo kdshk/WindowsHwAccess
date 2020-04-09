@@ -42,8 +42,17 @@ namespace AcpiWin
             TrewViewWidth = this.ClientSize.Width / 3;
             ResizeLayout();
             acpiLib = new AcpiLib();
-            amlBuilder.acpiLib = acpiLib;
-            InitializeAcpiObjects();
+            if (!acpiLib.AcpiLibValid())
+            {
+                MessageBox.Show("Did not find acpilib.dll, need to put acpilib.dll/hwacc.sys in the same folder of acpiwin",
+                    "Error");
+                
+            }
+            else
+            {
+                amlBuilder.acpiLib = acpiLib;
+                InitializeAcpiObjects();
+            }
             //amlMethod = new AmlMethod(acpiLib, "\\___");
             //amlMethod.RunMethod(); // Run method is a internal test code
             //amlMethod = null;
@@ -216,7 +225,6 @@ namespace AcpiWin
             if (acpiLib.DriverLoaded())
             {
                 statusStrip1.Items[0].Text = "Online Mode";
-
 
             } else
             {
@@ -664,6 +672,11 @@ namespace AcpiWin
         private void acpiView_KeyPress(object sender, KeyPressEventArgs e)
         {
             aslText_KeyPress(sender, e);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

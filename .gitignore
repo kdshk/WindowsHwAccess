@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/x64/Debug
+/.vs
+/HwAcc/x64/Debug/HwAcc.tlog
+/HwAcc/x64/Debug
+/AcpiLib/x64/Debug
+/AcpiWin/obj/Debug
+/AcpiWin/bin/Debug
+/AcpiLib/Debug

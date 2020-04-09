@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace AcpiWin
 {
@@ -127,6 +128,13 @@ namespace AcpiWin
         /// </summary>
         public AcpiLib()
         {
+            // check if the dll is exist
+            if (!File.Exists ("acpilib.dll"))
+            {
+                // alert that acpilib.dll is not existing
+                return;
+            }
+
             hDriver = IntPtr.Zero;
             for (int nRetry = 0; nRetry < 10; nRetry ++)
             {
@@ -178,6 +186,14 @@ namespace AcpiWin
                     SaveAcpiObjects(sb);
                 }
             }
+        }
+        /// <summary>
+        /// Check if acpi libary is ready to load
+        /// </summary>
+        /// <returns></returns>
+        public Boolean AcpiLibValid()
+        {
+            return File.Exists("acpilib.dll");
         }
         /// <summary>
         /// Get type of acpi name space from path
