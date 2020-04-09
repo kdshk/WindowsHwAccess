@@ -1,2 +1,2 @@
 # WindowsHwAccess
-Windows Driver for Hardware and ACPI Access, diassemble acpi code and run method and device notification, single step debug simulation
+Windows Driver for Hardware and ACPI Access, diassemble acpi code, run method , device notification and single step debug simulation
