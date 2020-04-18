@@ -50,8 +50,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>AcpiWin.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup />
@@ -78,8 +77,10 @@
     <Compile Include="AcpiData.cs" />
     <Compile Include="AcpiLib.cs" />
     <Compile Include="AcpiMethodArg.cs" />
+    <Compile Include="AcpiTables.cs" />
     <Compile Include="AmlBuilder.cs" />
     <Compile Include="AmlDebug.cs" />
+    <Compile Include="AmlDisassemble.cs" />
     <Compile Include="AmlMethod.cs" />
     <Compile Include="AmlMethodData.cs" />
     <Compile Include="AmlOp.cs" />
@@ -102,6 +103,7 @@
       <DependentUpon>FindForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Log.cs" />
+    <Compile Include="Logs.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -160,6 +162,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Acpi.ico" />
+    <Content Include="acpi.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy ..\..\acpi.xml acpi.xml /Y /B</PreBuildEvent>
+  </PropertyGroup>
 </Project>

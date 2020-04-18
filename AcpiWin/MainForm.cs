@@ -8,11 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace AcpiWin
 {
     public partial class MainForm : Form
     {
+        private Logs AcpiWinLog = new Logs("log.txt");
         private const int BorderSize = 5;
         private AmlDebug debug = new AmlDebug();        
         private int TrewViewWidth = 0;
@@ -64,6 +66,20 @@ namespace AcpiWin
         /// <param name="e"></param>
         private void acpiView_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (e.Node.Tag == null)
+            {
+                return;
+            }
+            Type type = e.Node.Tag.GetType();
+            if (type.Name == "AcpiTable")
+            {
+                // do a acpi table parser
+                aslText.Text = ((AcpiTable)e.Node.Tag).ToString();
+                return;
+            }
+            //Type.Equals (e.Node.Tag, AcpiTable) {
+
+            //}
             // show something
             if (bRightClickInProgress)
             {
@@ -164,6 +180,7 @@ namespace AcpiWin
         private void BuildAcpiObjects(TreeNode root, string Path)
         {
             string names = "";
+            AcpiWinLog.Log(Path);
             int Length = acpiLib.GetNamePath(Path, ref names);
             if (Length > 0)
             {
@@ -172,19 +189,24 @@ namespace AcpiWin
                 // 
                 int nStart = 0;
                 AmlBuilder.AcpiNS acpiNSRoot = amlBuilder.GetCurrentPath();
+                
                 while (nStart < names.Length)
                 {
                     string Name = names.Substring(nStart, 4);
                     string FullPath = Path + Name;
                     ushort nType = 0;
-                    string type = acpiLib.GetTypeStringByName(FullPath, ref nType);
-                    AmlBuilder.AcpiNS acpiNs =  amlBuilder.AddChildItem(FullPath, nType);
+                    string type = "";
+                    AcpiWinLog.Log(FullPath);
                     if (Name == "----")
                     {
                         type = "Field";
                         nStart += 4;
                         continue;
                     }
+
+                    type = acpiLib.GetTypeStringByName(FullPath, ref nType);
+                    AmlBuilder.AcpiNS acpiNs =  amlBuilder.AddChildItem(FullPath, nType);
+                    
                     TreeNode subNode = root.Nodes.Add(string.Format("{0} [{1}]", Name, type));
                     // Create C# AcpiNS Data
                     
@@ -213,11 +235,31 @@ namespace AcpiWin
                 }
             }
         }
+        private AcpiTables AcpiTables = new AcpiTables();
+        /// <summary>
+        /// Initialize the acpi tables from registery
+        /// </summary>
+        
+        private void InitializeAcpiTables()
+        {
+            //Registry.LocalMachine.OpenSubKey 
+            AcpiTables.QueryAcpiTables();
+
+            //AcpiTables
+            TreeNode root = acpiView.Nodes.Add("Acpi Tables");
+            foreach (AcpiTable Table in AcpiTables.Tables)
+            {
+                TreeNode rn = root.Nodes.Add(Table.TableName);
+                rn.Tag = Table;
+            }
+            root.Expand();
+        }
         /// <summary>
         /// Load acpi objects from dll
         /// </summary>
         private void InitializeAcpiObjects()
         {
+            InitializeAcpiTables();
             if (acpiLib == null)
             {
                 return;
@@ -241,6 +283,8 @@ namespace AcpiWin
             //acpi_root.Expand();
             root.Expand();
             acpi_root.Expand();
+
+           
         }
         /// <summary>
         /// Right click notification

@@ -122,7 +122,9 @@ namespace AcpiWin
         [DllImport("AcpiLib.dll", EntryPoint = "GetRawData", CharSet = CharSet.Unicode)]
         public static extern IntPtr GetRawData(StringBuilder pString, ref ushort type, ref long length);
 
+        
         private IntPtr hDriver;
+
         /// <summary>
         /// Constructor to initialize acpi lib and load the acpi name space from file or runtime
         /// </summary>

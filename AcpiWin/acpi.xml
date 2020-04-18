@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--acpi-->
+<AcpiTable>
+<component name="Generic Address Structure">
+    <field name="Address Space ID" length="1" offset="0" datatype="byte" type="description">
+        <description name="System Memory space" value="0x00"/>
+        <description name="System I/O space" value="0x01"/>
+        <description name="PCI Configuration space" value="0x02"/>
+        <description name="Embedded Controller" value="0x03"/>
+        <description name="SMBus" value="0x04"/>
+        <description name="SystemCMOS" value="0x05"/>
+        <description name="PciBarTarget" value="0x06"/>
+        <description name="IPMI" value="0x07"/>
+        <description name="General PurposeIO" value="0x08"/>
+        <description name="GenericSerialBus" value="0x09"/>
+        <description name="Platform Communications Channel(PCC)" value="0x0A"/>
+        <!--description name="Reserved" value="range" from="0xb" to = "0x7E"/-->
+        <description name="Functional Fixed Hardware" value="0x7F"/>
+        <description name="OEM Defined" value="range" from="0xC0" to = "0xFF"/>
+    </field>
+    <field name="Register Bit Width" length="1" offset="1" datatype="byte" type="value"/>
+    <field name="Register Bit Offset" length="1" offset="2" datatype="byte" type="value"/>        
+    <field name="Access Size" length="1" offset="3" datatype="byte" type="description">
+        <description name="Undefined (Legacy Reasons)" value="0x0"/>
+        <description name="Byte access" value="0x1"/>
+        <description name="Word access" value="0x2"/>
+        <description name="DWord access" value="0x3"/>
+        <description name="QWord access" value="0x4"/>
+        <description name="Invalid" value="range" from="0x5" to = "0xFF"/>
+    </field>
+    <field name="Address" length="8" offset="4" datatype="byte" type="value"/>  
+</component>
+<Header name="Standard ACPI Header">
+    <field name="Signature" length="0x4" offset="0" datatype="byte" type="char"/>
+    <field name="Length" length="4" offset="4" datatype="byte" type="value"/>
+    <field name="Revision" length="1" offset="8" datatype="byte" type="value"/>
+    <field name="Checksum" length="1" offset="9" datatype="byte" type="value" verify="checksum"/>
+    <field name="OEMID" length="6" offset="10" datatype="byte" type="char"/>
+    <field name="OEM Table ID" length="8" offset="16" datatype="byte" type="char"/>
+    <field name="OEM Revision" length="4" offset="24" datatype="byte" type="value"/>
+    <field name="Creator ID" length="4" offset="28" datatype="byte" type="char"/>
+    <field name="Creator Revision" length="4" offset="32" datatype="byte" type="value"/>
+</Header>
+<Table name="FACS">
+    <!--indicate a standard acpi table header-->
+    <header type="Header"/>    
+</Table>
+<Table name="FACP">
+    <!--indicate a standard acpi table header-->
+    <header type="Header"/>
+    <field name="FIRMWARE_CTRL" length="4" offset="36" datatype="byte" type="value"/>
+    <field name="DSDT" length="4" offset="40" datatype="byte" type="value"/>
+    <field name="Preferred_PM_Profile" length="1" offset="45" datatype="byte" type="description">
+        <description name="Unspecified" value="0x0"/>
+        <description name="Desktop" value="0x1"/>
+        <description name="Mobile" value="0x2"/>
+    </field>
+    <field name="SCI_INT" length="2" offset="46" datatype="byte" type="value"/>
+    <field name="SMI_CMD" length="4" offset="48" datatype="byte" type="value"/>
+    <field name="ACPI Enable" length="1" offset="52" datatype="byte" type="value"/>
+    <field name="ACPI Disable" length="1" offset="53" datatype="byte" type="value"/>
+    <field name="S4 BIOS" length="1" offset="54" datatype="byte" type="value"/>
+    <field name="PSTATE_CNT" length="1" offset="55" datatype="byte" type="value"/>
+    <field name="PM1a_EVT_BLK" length="4" offset="56" datatype="byte" type="value"/>
+    <field name="PM1b_EVT_BLK" length="4" offset="60" datatype="byte" type="value"/>
+    <field name="PM1a_CNT_BLK" length="4" offset="64" datatype="byte" type="value"/>
+    <field name="PM1b_CNT_BLK" length="4" offset="68" datatype="byte" type="value"/>
+    <field name="PM2_CNT_BLK" length="4" offset="72" datatype="byte" type="value"/>
+    <field name="PM_TMR_BLK" length="4" offset="76" datatype="byte" type="value"/>
+    <field name="GPE0_BLK" length="4" offset="80" datatype="byte" type="value"/>
+    <field name="GPE1_BLK" length="4" offset="84" datatype="byte" type="value"/>
+    <field name="PM1_EVT_LEN" length="1" offset="88" datatype="byte" type="value"/>
+    <field name="PM1_CNT_LEN" length="1" offset="89" datatype="byte" type="value"/>
+    <field name="PM2_EVT_LEN" length="1" offset="90" datatype="byte" type="value"/>
+    <field name="PM_TMR_LEN" length="1" offset="91" datatype="byte" type="value"/>
+    <field name="GPE0_BLK_LEN" length="1" offset="92" datatype="byte" type="value"/>
+    <field name="GPE1_BLK_LEN" length="1" offset="93" datatype="byte" type="value"/>
+    <field name="GPE1_BASE" length="1" offset="94" datatype="byte" type="value"/>
+    <field name="CST_CNT" length="1" offset="95" datatype="byte" type="value"/>
+    <!--field name="CST_CNT" length="1" offset="95" datatype="byte" type="value"/-->
+    <field name="IAPC_BOOT_ARCH" length="2" offset="109" datatype="bit" type="description">
+      <description name="LEGACY_DEVICES" bitoffset="0" bitlength ="1"/>
+      <description name="8042" bitoffset="1" bitlength ="1"/>
+      <description name="VGA Not Present" bitoffset="2" bitlength ="1"/>
+      <description name="MSI Not Supported" bitoffset="3" bitlength ="1"/>
+      <description name="PCIe ASPM Controls" bitoffset="4" bitlength ="1"/>
+      <description name="CMOS RTC Not Present" bitoffset="5" bitlength ="1"/>
+      <description name="Reserved" value="others"/>
+    </field>
+    <field name="RESET_REG" length="12" offset="116" datatype="byte" type="component" component="Generic Address Structure"/>
+    <field name="RESET_VALUE" length="1" offset="128" datatype="byte" type="value"/>
+</Table>
+  <Table name="DSDT">
+    <!--indicate a standard acpi table header-->
+    <header type="Header" aml="true"/>
+  </Table>
+  <Table name="SSDT">
+    <!--indicate a standard acpi table header-->
+    <header type="Header" aml="true"/>
+  </Table>
+</AcpiTable>
+<!--/acpi-->

@@ -33,7 +33,7 @@ namespace AcpiWin
                 mAcpiGetDataMap["Integer"] = GetIntData;
                 mAcpiGetDataMap["String"] = GetStringData;
                 mAcpiGetDataMap["Buffer"] = GetBufferData;
-                mAcpiGetDataMap["Pacakge"] = GetPacakgeData;
+                mAcpiGetDataMap["Pacakge"] = GetPackgeData;
                 mAcpiGetDataMap["FieldUnit"] = GetFieldData;
             }
             if (acpiNSRoot == null)
@@ -72,7 +72,7 @@ namespace AcpiWin
                 //}
 
                 // Get the text of method
-                acpiLib.GetAslCode(acpiNS.Path, ref acpiNS.strValue);
+                //acpiLib.GetAslCode(acpiNS.Path, ref acpiNS.strValue);
             }
         }
         /*
@@ -127,14 +127,19 @@ namespace AcpiWin
                 {
                     ushort utype = (ushort)type;
                     IntPtr intPtr = acpiLib.GetValue(acpiNS.Path, ref utype);
+
                     if (intPtr != IntPtr.Zero)
                     {
-                        int DataLength = Marshal.ReadInt32(intPtr + 0x4);
-                        // copy the buffer to byte
-                        if (acpiNS.pbValue == null)
+                        UInt32 val = (UInt32)Marshal.ReadInt32(intPtr);
+                        if (val == 0x426F6541)
                         {
-                            acpiNS.pbValue = new byte[DataLength];
-                            Marshal.Copy(intPtr, acpiNS.pbValue, 0, DataLength);
+                            int DataLength = Marshal.ReadInt32(intPtr + 0x4);
+                            // copy the buffer to byte
+                            if (acpiNS.pbValue == null)
+                            {
+                                acpiNS.pbValue = new byte[DataLength];
+                                Marshal.Copy(intPtr, acpiNS.pbValue, 0, DataLength);
+                            }
                         }
                         acpiLib.FreeArg(intPtr);
                     }
@@ -142,7 +147,7 @@ namespace AcpiWin
             }
         }
 
-        public void GetPacakgeData(AcpiNS acpiNS)
+        public void GetPackgeData(AcpiNS acpiNS)
         {
             if (acpiLib != null)
             {
@@ -154,12 +159,16 @@ namespace AcpiWin
                     IntPtr intPtr = acpiLib.GetValue(acpiNS.Path, ref utype);
                     if (intPtr != IntPtr.Zero)
                     {
-                        int DataLength = Marshal.ReadInt32(intPtr + 0x4);
-                        // copy the package buffer to byte
-                        if (acpiNS.pbValue == null)
+                        UInt32 val = (UInt32)Marshal.ReadInt32(intPtr);
+                        if (val == 0x426F6541)
                         {
-                            acpiNS.pbValue = new byte[DataLength];
-                            Marshal.Copy(intPtr, acpiNS.pbValue, 0, DataLength);
+                            int DataLength = Marshal.ReadInt32(intPtr + 0x4);
+                            // copy the package buffer to byte
+                            if (acpiNS.pbValue == null)
+                            {
+                                acpiNS.pbValue = new byte[DataLength];
+                                Marshal.Copy(intPtr, acpiNS.pbValue, 0, DataLength);
+                            }
                         }
                         acpiLib.FreeArg(intPtr);
                     }
