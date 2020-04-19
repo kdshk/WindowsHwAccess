@@ -46,9 +46,9 @@ namespace AcpiWin
             acpiLib = new AcpiLib();
             if (!acpiLib.AcpiLibValid())
             {
-                MessageBox.Show("Did not find acpilib.dll, need to put acpilib.dll/hwacc.sys in the same folder of acpiwin",
-                    "Error");
-                
+                //MessageBox.Show("Did not find acpilib.dll, need to put acpilib.dll/hwacc.sys in the same folder of acpiwin",
+                //    "Error");
+                InitializeAcpiTables();
             }
             else
             {

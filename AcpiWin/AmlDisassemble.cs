@@ -258,7 +258,7 @@ namespace AcpiWin
             //    // it's field then parse the field lists
             //    opregion += FieldHandler(ref offset);
             // }
-            return GetSpace() + opregion;
+            return opregion;
         }
         private string FieldAccessType (byte accessType)
         {
@@ -392,11 +392,12 @@ namespace AcpiWin
         {
             //string strFields = "{\n";
             offset++;
+            int end = offset;
             int Length = GetPackageLength(ref offset);
-            int end = offset + Length - 1;
-           
+            end += Length;
+
             //string FeildName = NameString(ref offset);
-            string strFields = string.Format("{0}Field({1},{2})", GetSpace(), NameString(ref offset), FieldFlags(_AmlBinary[offset]));
+            string strFields = string.Format("Field({0},{1})", NameString(ref offset), FieldFlags(_AmlBinary[offset]));
             offset++;
             // point to field lists now
             if (offset < end)
@@ -582,7 +583,6 @@ namespace AcpiWin
             }
             return false;
         }
-      
         private bool IsDataObjects(int offset)
         {
             if (_AmlBinary[offset] == 0x5B)
@@ -627,9 +627,7 @@ namespace AcpiWin
             }
             offset += PkgByte;
             return length;
-        }
-        
-        
+        }        
         private string NamedObj(ref int offset)
         {
             // handle the named obj
@@ -656,6 +654,23 @@ namespace AcpiWin
         {
             return AmlOpcodeHandler(ref offset);
         }
+
+        private string CondRefOfOpcodeHandler(ref int offset)
+        {
+            offset++;
+            string Name = SuperName(ref offset);
+            if (IsNullName(offset))
+            {
+                offset++;
+                return string.Format("CondRefOf({0})", Name);
+            }
+            else
+            {
+                return string.Format("CondRefOf({0}, {1})", Name, SuperName(ref offset));
+            }
+            
+        }
+        
         private string DebugOpcodeHandler(ref int offset)
         {
             if (!IsDataObjects(offset))
@@ -821,7 +836,7 @@ namespace AcpiWin
         private string ZeroOpcodeHandler(ref int offset)
         {
             offset++;
-            return "0";
+            return "Zero";
         }
         /// <summary>
         /// Disassemble a one opcode
@@ -831,7 +846,7 @@ namespace AcpiWin
         private string OneOpcodeHandler(ref int offset)
         {
             offset++;
-            return "1";
+            return "One";
         }
         /// <summary>
         /// Disassemble a ones opcode
@@ -841,12 +856,13 @@ namespace AcpiWin
         private string OnesOpcodeHandler(ref int offset)
         {
             offset++;
-            return "0xFFFFFFFFFFFFFFFF";
+            return "Ones";
         }
         private string DataRefObj(ref int offset)
         {
             // TODO: Nickels
-            return "DataRefObj";
+            return AmlOpcodeHandler(ref offset);
+            //return "DataRefObj";
         }
         /// <summary>
         /// Disassemble a name opcode
@@ -855,8 +871,14 @@ namespace AcpiWin
         /// <returns></returns>
         private string NameOpcodeHandler(ref int offset)
         {
+            int debug = 0;
             offset++;
-            return string.Format("Name({0}, {1})", NameString(ref offset),
+            string strName = NameString(ref offset);
+            if (strName == "_UID")
+            {
+                debug = 1;
+            }
+            return string.Format("Name({0}, {1})", strName,
                DataRefObj(ref offset));
         }
 
@@ -906,20 +928,6 @@ namespace AcpiWin
             UInt64 qword = (UInt64)BitConverter.ToInt32(_AmlBinary, offset - 8);
             return string.Format("0x{0:X}", qword);
         }
-
-        /// <summary>
-        /// Disassemble a string opcode
-        /// </summary>
-        /// <param name="offset"></param>
-        /// <returns></returns>
-        private string StringOpcodeHandler(ref int offset)
-        {
-            offset++;
-            string value = BitConverter.ToString(_AmlBinary, offset);
-            offset += value.Length + 1;
-            return value;
-        }
-
         /// <summary>
         /// Disassemble a scope opcode
         /// </summary>
@@ -929,16 +937,252 @@ namespace AcpiWin
         {
             string scope = "";
             offset++;
+            int PkgEnd = offset;
             int PkgLength = GetPackageLength(ref offset);
-            int PkgEnd = offset + PkgLength;
-            scope = string.Format("Scope({0}) {\n", NameString(ref offset));
-            while (offset < PkgEnd)
+            PkgEnd += PkgLength;
+            scope = string.Format("Scope({0})", NameString(ref offset)) + "{\n";
+           
+            if (offset < PkgEnd)
             {
-                scope += TermArgList(ref offset);
+                _ScopeLevel++;
+                //offset = PkgEnd;
+                while (offset < PkgEnd)
+                {
+                    scope += GetSpace();
+                    scope += TermArgList(ref offset);
+                    scope += "\n";
+                }
+                _ScopeLevel--;
             }
-            scope += "\n}";
+            scope +=  GetSpace() + "}";
             return scope;
         }
+        private string MathOpcodeHandler(string operate, ref int offset)
+        {
+            offset++;
+            string arg1 = TermArg(ref offset);
+            string arg2 = TermArg(ref offset);
+            if (IsNullName(offset))
+            {
+                offset++;
+                return string.Format("{0}({1}, {2})", operate, arg1, arg2);
+            }
+
+            return string.Format("{0}({1}, {2},{3})", operate, arg1, arg2, SuperName(ref offset));
+        }
+        private string AddOpcodeHandler(ref int offset)
+        {
+            return MathOpcodeHandler("Add", ref offset);
+        }
+        private string ShiftLeftOpcodeHandler(ref int offset)
+        {
+            return MathOpcodeHandler("ShiftLeft", ref offset);
+        }
+
+        /// <summary>
+        /// Disassemble a method opcode
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        /// 
+        private string GetMethodFlag(ref int offset)
+        {
+            byte flag = _AmlBinary[offset];
+            offset++;
+            return string.Format("{0},{1}, {2}", flag & 0x7, (flag & 0x8) == 0? "NotSerialized": "Serialized", flag >> 4);
+        }
+        private string MethodOpcodeHandler(ref int offset)
+        {
+            string scope = "";
+            offset++;
+            int PkgEnd = offset;
+            int PkgLength = GetPackageLength(ref offset);
+            PkgEnd += PkgLength;
+            scope = string.Format("Method({0},{1})", NameString(ref offset), GetMethodFlag(ref offset))  + "{\n";
+
+            if (offset < PkgEnd)
+            {
+                _ScopeLevel++;
+                offset = PkgEnd;
+                while (offset < PkgEnd)
+                {
+                    scope += TermArgList(ref offset);
+                }
+                _ScopeLevel--;
+            }
+
+            scope += GetSpace()+ "}";
+            return scope;
+        }
+
+        private string DefaultPkgHandler (ref int offset)
+        {
+            string scope = "";
+            offset++;
+            int PkgEnd = offset;
+            int PkgLength = GetPackageLength(ref offset);
+            PkgEnd += PkgLength;
+            offset = PkgEnd;
+            return string.Format("Package({0})", PkgLength);
+        }
+
+        private string DeviceOpcodeHandler(ref int offset)
+        {
+            string scope = "";
+            offset++;
+            int PkgEnd = offset;
+            int PkgLength = GetPackageLength(ref offset);
+            PkgEnd += PkgLength;
+            scope = string.Format("Device({0})", NameString(ref offset)) + "{\n";
+
+            if (offset < PkgEnd)
+            {
+                _ScopeLevel++;
+                //offset = PkgEnd;
+                while (offset < PkgEnd)
+                {
+                    scope += GetSpace();
+                    scope += TermArgList(ref offset);
+                    scope += "\n";
+                }
+                _ScopeLevel--;
+            }
+            scope +=  GetSpace() + "}";
+            return scope;
+        }
+        private string GetExternalObjectType(ref int offset)
+        {
+            byte value = _AmlBinary[offset];
+            string[] ObjectType = {"UnknowObj","IntObj", "StrObj", "BuffObj","PackageObj","FieldUnitObj","DeviceObj","EventObj",
+            "MethodObj","MutexObj","OpRegionObj","PowerResObj","ProcessorObj","ThermalZoneObj","BuffFieldObj","DDBHandleObh"};
+            offset++;
+            if (ObjectType.Length > value)
+            {
+                if (value == 8)
+                {
+                    offset++;
+                    return ObjectType[value] + ",ArgCount<" + _AmlBinary[offset - 1].ToString() + ">";
+                }
+                offset++;
+                return ObjectType[value];
+            }
+            else
+            {
+                offset++;
+                return _AmlBinary[offset - 2].ToString();
+            }
+        }
+        private string ExternalOpcodeHandler(ref int offset)
+        {
+            offset++;
+            string strOp = string.Format("External({0},{1})", NameString(ref offset), GetExternalObjectType(ref offset));
+            return strOp;
+        }
+        /// <summary>
+        /// Disassemble a if opcode
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        private string IfOpcodeHandler(ref int offset)
+        {
+            string IfOp = "";
+            offset++;
+            int PkgEnd = offset;
+            int Length = GetPackageLength(ref offset);
+            PkgEnd += Length;
+            IfOp = string.Format("If({0}){1}", AmlOpcodeHandler(ref offset),"{\n");
+            if (offset < PkgEnd)
+            {
+                _ScopeLevel++;
+                while (offset < PkgEnd)
+                {
+                    IfOp += GetSpace();
+                    IfOp += TermArgList(ref offset);
+                    IfOp += "\n";
+                }
+                _ScopeLevel--;
+            } else
+            {
+                //IfOp += "\n" + GetSpace() + "{\n" + GetSpace()+"}";
+            }
+            IfOp += "\n" + GetSpace() + "}";
+            return IfOp;
+        }
+        private string LCompareOpcodeHandler(string operate, ref int offset)
+        {
+            return string.Format("{0}({1}, {2})", operate,AmlOpcodeHandler(ref offset), AmlOpcodeHandler(ref offset));
+        }
+        private string LLOpcodeHandler(ref int offset)
+        {
+            byte opcode = _AmlBinary[offset];
+            offset++;
+            if (opcode == (byte)AmlOpCode.LandOp)
+            {
+                return LCompareOpcodeHandler("LAnd", ref offset);
+            } else if (opcode == (byte)AmlOpCode.LorOp)
+            {
+                return LCompareOpcodeHandler("LOr", ref offset);
+            } else if (opcode == (byte)AmlOpCode.LEqualOp)
+            {
+                return LCompareOpcodeHandler("LEqual", ref offset);
+            }
+            else if (opcode == (byte)AmlOpCode.LGreaterOp)
+            {
+                return LCompareOpcodeHandler("LGreater", ref offset);
+            }
+            else if (opcode == (byte)AmlOpCode.LLessOp)
+            {
+                return LCompareOpcodeHandler("LLess", ref offset);
+            } else
+            {
+                return "invalid";
+            }
+        }
+
+        private string LNotOpcodeHandler(ref int offset)
+        {
+            string strOp = "";
+            offset++;
+            if (_AmlBinary[offset] == (byte)AmlOpCode.LEqualOp)
+            {
+                offset++;
+                strOp = LCompareOpcodeHandler("LNotEqual", ref offset);//string.Format("LNotEqual({0})", AmlOpcodeHandler(ref offset));
+            }
+            else if (_AmlBinary[offset] == (byte)AmlOpCode.LGreaterOp)
+            {
+                offset++;
+                strOp = strOp = LCompareOpcodeHandler("LLessEqual", ref offset); //string.Format("LLessEqual({0})", AmlOpcodeHandler(ref offset));
+            }
+            else if (_AmlBinary[offset] == (byte)AmlOpCode.LLessOp)
+            {
+                offset++;
+                strOp = strOp = strOp = LCompareOpcodeHandler("LGreaterEqual", ref offset); //string.Format("LGreaterEqual({0})", AmlOpcodeHandler(ref offset));
+            }
+            else
+            {
+                strOp = string.Format("LNot({0})", AmlOpcodeHandler(ref offset));
+            }
+            return strOp;
+        }
+
+        /// <summary>
+        /// Disassemble a string opcode
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        private string StringOpcodeHandler(ref int offset)
+        {
+            offset++;
+            int Length = 0;
+            while (_AmlBinary[Length + offset] != 0)
+            {
+                Length++;
+            }
+            string value = Encoding.ASCII.GetString (_AmlBinary, offset, Length);
+            //string value = BitConverter.ToString(_AmlBinary, offset, Length);
+            offset += Length + 1;
+            return "\""+value+ "\"";
+        }               
 
         /// <summary>
         /// Disassemble a buffer opcode
@@ -990,6 +1234,7 @@ namespace AcpiWin
         {
             offset++;
             byte count = _AmlBinary[offset];
+            offset++;
             string nameSeg = "";
             for (byte idx = 0; idx < count; idx ++)
             {
@@ -1006,10 +1251,12 @@ namespace AcpiWin
             //return AmlOpcodeHandler(ref offset);
             if (_AmlBinary[offset] == (byte)AmlOpCode.RootChar)
             {
+                offset++;
                 return @"\" + NameString(ref offset);
             }
             else if (_AmlBinary[offset] == (byte)AmlOpCode.ParentPrefixChar)
             {
+                offset++;
                 return "^" + NameString(ref offset);
             }
             else if (_AmlBinary[offset] == (byte)AmlOpCode.DualNamePrefix)
@@ -1190,12 +1437,20 @@ namespace AcpiWin
         }
         private string TermArgList(ref int offset)
         {
-            return "TermArgList";
+            if (IsNameObject(offset))
+            {
+                return SuperName(ref offset);
+            }
+            return AmlOpcodeHandler(ref offset);
         }
         private string TermArg(ref int offset)
         {
             //Type2Opcode | DataObject | ArgObj | LocalObj
-            return "TermArg";
+            if (IsNameObject (offset))
+            {
+                return SuperName(ref offset);
+            }
+            return AmlOpcodeHandler(ref offset);
         }
         private string MethodInvocation(ref int offset, ref int length)
         {
@@ -1221,6 +1476,22 @@ namespace AcpiWin
             AmlByteCodeHandler[(byte)AmlOpCode.DWordPrefix] = DWordOpcodeHandler;
             AmlByteCodeHandler[(byte)AmlOpCode.StringPrefix] = StringOpcodeHandler;
             AmlByteCodeHandler[(byte)AmlOpCode.QWordPrefix] = QWordOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.ExternalOp] = ExternalOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.IfOp] = IfOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LnotOp] = LNotOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LandOp] = LLOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LorOp] = LLOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LEqualOp] = LLOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LGreaterOp] = LLOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.LLessOp] = LLOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.ScopeOp] = ScopeOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.MethodOp] = MethodOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.PackageOp] = DefaultPkgHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.BufferOp] = DefaultPkgHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.VarPackageOp] = DefaultPkgHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.AddOp] = AddOpcodeHandler;
+            AmlByteCodeHandler[(byte)AmlOpCode.ShiftLeftOp] = ShiftLeftOpcodeHandler;
+            
             AmlByteCodeHandler[0x5b] = AmlExtHandler;
             for (byte index = 0x60; index <= 0x6E; index++)
             {
@@ -1232,8 +1503,11 @@ namespace AcpiWin
             AmlByteExtCodeHandler = new Dictionary<byte, AmlParser>();
             AmlByteExtCodeHandler[(byte)AmlExtOpCode.OpRegionOp] = OpRegionHandler;
             AmlByteExtCodeHandler[(byte)AmlExtOpCode.FieldOp] = FieldHandler;
+            //AmlByteExtCodeHandler[(byte)AmlExtOpCode.FieldOp] = FieldHandler;
+            AmlByteExtCodeHandler[(byte)AmlExtOpCode.DeviceOp] = DeviceOpcodeHandler;
             AmlByteExtCodeHandler[(byte)AmlExtOpCode.BankFieldOp] = BankFieldHandler;
             AmlByteExtCodeHandler[(byte)AmlExtOpCode.DebugOp] = DebugOpcodeHandler;
+            AmlByteExtCodeHandler[(byte)AmlExtOpCode.CondRefOfOp] = CondRefOfOpcodeHandler;
         }
         /// <summary>
         /// Aml Opcode lookup table
@@ -1247,6 +1521,10 @@ namespace AcpiWin
             if (AmlByteCodeHandler.TryGetValue(_AmlBinary[offset], out AmlParser))
             {
                 return AmlParser(ref offset);
+            }
+            else if (IsNameObject(offset))
+            {
+                return SuperName(ref offset);
             }
             return "Unsupported Aml Opcode found";
         }
