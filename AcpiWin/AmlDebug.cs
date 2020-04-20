@@ -27,14 +27,16 @@ namespace AcpiWin
         {
             try
             {
-                if (strValue.StartsWith ("0x"))
+                if (strValue.StartsWith("0x"))
                 {
                     return true;
                 }
                 UInt64 bValue = UInt64.Parse(strValue, System.Globalization.NumberStyles.HexNumber);
                 return true;
-            }catch(Exception)
+            }
+            catch (Exception e)
             {
+                Log.Logs(e.Message);
                 return false;
             }
         }
@@ -51,7 +53,8 @@ namespace AcpiWin
                             continue;   // if the name is already exiting
                         }
                         
-                    } catch (Exception) {
+                    } catch (Exception e) {
+                        
                         if (amlData.Name.Equals("Zero"))
                         {
                             continue;
@@ -283,9 +286,9 @@ namespace AcpiWin
                     temp = temp.Remove(temp.IndexOf(value));
                 }
             }
-            catch(Exception)
+            catch(Exception e)
             {
-
+                Log.Logs(e.Message);
             }            
             return Num;
         }
@@ -397,8 +400,9 @@ namespace AcpiWin
                 Min = OpCodeMin[Name];
                 return true;
             }
-            catch (System.Collections.Generic.KeyNotFoundException)
+            catch (System.Collections.Generic.KeyNotFoundException e)
             {
+                Log.Logs(e.Message);
                 return false;
             }
             return false;
@@ -419,8 +423,8 @@ namespace AcpiWin
                     subString = subString.Substring(offset);
                 }
             }
-            catch (Exception)  {
-
+            catch (Exception e)  {
+                Log.Logs(e.Message);
             }
             return subs;
             
@@ -480,8 +484,9 @@ namespace AcpiWin
                     return true;
                 }
             }
-            catch (System.Collections.Generic.KeyNotFoundException)
+            catch (System.Collections.Generic.KeyNotFoundException e)
             {
+                Log.Logs(e.Message);
                 return false;
             }
             return false;
@@ -811,7 +816,8 @@ namespace AcpiWin
             amlData.Type = AcpiDataType.Int;
             if (amlOp.amlDatas.Count + amlOp.SubOp.Count != 2)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (amlOp.amlDatas.Count == 2)
             {
@@ -842,7 +848,8 @@ namespace AcpiWin
             amlData.Type = AcpiDataType.Int;
             if (amlOp.amlDatas.Count + amlOp.SubOp.Count != 2)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (amlOp.amlDatas.Count == 2)
             {
@@ -862,11 +869,13 @@ namespace AcpiWin
             }
             //System.Diagnostics.Debug.Assert(false);
             if (data1 == null || data2== null) {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (data1.Type != AcpiDataType.Int || data2.Type != AcpiDataType.Int)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             
             if (data1.Value != 0 || data2.Value != 0)
@@ -884,13 +893,15 @@ namespace AcpiWin
         {
             if (amlOp.amlDatas.Count + amlOp.SubOp.Count != 1)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (amlOp.amlDatas.Count == 1)
             {
                 if (amlOp.amlDatas[0].Type != AcpiDataType.Int)
                 {
-                    System.Diagnostics.Debug.Assert(false);
+                    //System.Diagnostics.Debug.Assert(false);
+                    Log.Logs("");
                 }
                 return amlOp.amlDatas[0];
             } else
@@ -898,13 +909,15 @@ namespace AcpiWin
                 // it's a operation, do a operation then
                 return actions[amlOp.SubOp[0].OpCode].Invoke(amlOp.SubOp[0]);
             }
-            System.Diagnostics.Debug.Assert(false);
+            //System.Diagnostics.Debug.Assert(false);
+            Log.Logs("");
             return null;
         }
 
         private AcpiData AmlDefaultAction(AmlOp amlOp)
         {
-            System.Diagnostics.Debug.Assert(false);
+            //System.Diagnostics.Debug.Assert(false);
+            Log.Logs("");
             return null;
         }
         private AcpiData AmlNotAction(AmlOp amlOp)
@@ -915,7 +928,8 @@ namespace AcpiWin
             amlData.Type = AcpiDataType.Int;
             if (amlOp.amlDatas.Count + amlOp.SubOp.Count != 1)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (amlOp.amlDatas.Count == 1)
             {
@@ -926,7 +940,8 @@ namespace AcpiWin
             }
             if (data1 == null)
             {
-                System.Diagnostics.Debug.Assert(false); 
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             amlData.PutValue(0);
             if (data1.Value == 0) {
@@ -949,7 +964,8 @@ namespace AcpiWin
             AcpiData amlData = AmlLEqualAction(amlOp);
             if (amlData.Type != AcpiDataType.Int)
             {
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("");
             }
             if (amlData.Value != 0)
             {
@@ -992,9 +1008,10 @@ namespace AcpiWin
                     isLocical = true;
                     return bRC;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    System.Diagnostics.Debug.Assert(false);
+                    Log.Logs(e.Message);
+                    //System.Diagnostics.Debug.Assert(false);
                 }
             }
             else
@@ -1004,9 +1021,9 @@ namespace AcpiWin
                     actions[amlOp.OpCode].Invoke(amlOp);
                     isLocical = false;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    System.Diagnostics.Debug.Assert(false);
+                    Log.Logs(e.Message);
                 }
             }
             return true;

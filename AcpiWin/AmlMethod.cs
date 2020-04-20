@@ -218,7 +218,8 @@ namespace AcpiWin
         {
             bError = true;
             strMethodCode = "";
-            System.Diagnostics.Debug.Fail(message);            
+            //System.Diagnostics.Debug.Assert(false);
+            Log.Logs("");
         }
         public AmlMethod(AcpiLib acpiLib, string path)
         {
@@ -2637,8 +2638,9 @@ namespace AcpiWin
                 iValue = UInt64.Parse(strValue, System.Globalization.NumberStyles.Integer);
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.Logs(e.Message);
                 return false;
             }
         }

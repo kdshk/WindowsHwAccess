@@ -482,6 +482,7 @@ namespace AcpiWin
             }
             catch (Exception ex)
             {
+                
                 statusStrip1.Items[1].Text = "Err Message: " + ex.Message;
             }
             return false;

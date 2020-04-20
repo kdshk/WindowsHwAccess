@@ -473,6 +473,7 @@ namespace AcpiWin
                             bEval = false;
                             tabControl1.SelectedIndex = pageIdx;
                             MessageBox.Show(ex.Message);
+                            Log.Logs(ex.Message);
                             break;
                         }
                     }

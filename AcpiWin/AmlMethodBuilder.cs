@@ -97,9 +97,9 @@ namespace AcpiWin
                     return null;
                 }
                 return amlMethods[index];
-            } catch (Exception ex)
+            } catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Log.Logs(e.Message);
             }
             return null;
         }
@@ -143,9 +143,9 @@ namespace AcpiWin
                 {
                     amlMethodInfo = FindMethod(path, name);
                 }
-            } catch(Exception ex)
+            } catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Log.Logs(e.Message);
             }
             if (amlMethodInfo != null)
             {

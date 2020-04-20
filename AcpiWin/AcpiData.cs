@@ -93,7 +93,8 @@ namespace AcpiWin
                     Array.Copy(arg.bValue, 0, this.bpValue, 0, arg.bValue.Length);
                     break;
                 default:
-                    System.Diagnostics.Debug.Assert(false);
+                    //System.Diagnostics.Debug.Assert(false);
+                    Log.Logs("public AcpiData(AcpiMethodArg arg)");
                     break;
             }
         }
@@ -658,7 +659,8 @@ namespace AcpiWin
                 }
                 else
                 {
-                    System.Diagnostics.Debug.Assert(false, "Wrong ACPI Data Type Assignment" + this.ToString() + acpiData.ToString());
+                    //System.Diagnostics.Debug.Assert(false, "Wrong ACPI Data Type Assignment" + this.ToString() + acpiData.ToString());
+                    Log.Logs("Wrong ACPI Data Type Assignment" + this.ToString() + acpiData.ToString());
                 }
 
             }
@@ -1025,8 +1027,9 @@ namespace AcpiWin
                 iValue = UInt64.Parse(strValue, System.Globalization.NumberStyles.Integer);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.Logs(ex.Message);
                 return false;
             }
         }
@@ -1200,7 +1203,8 @@ namespace AcpiWin
             else if (this.Type == AcpiDataType.Packge)
             {
                 // TODO, Package may be different type of data
-                System.Diagnostics.Debug.Assert(false);
+                //System.Diagnostics.Debug.Assert(false);
+                Log.Logs("public AcpiData Index(int Index)");
                 data.Type = AcpiDataType.Int;
                 data.Value = (UInt64)data.bpValue[Index];
             }
@@ -1279,8 +1283,9 @@ namespace AcpiWin
         }
         private void DbgMessage(
             string message)
-        {           
-            System.Diagnostics.Debug.Fail(message);
+        {
+            //System.Diagnostics.Debug.Assert(false);
+            Log.Logs("");
         }
     }
     public class AcpiField
@@ -1306,9 +1311,10 @@ namespace AcpiWin
             {
                 Enum.TryParse(strType, out accType);
             }
-            catch
+            catch (Exception ex)
             {
                 accType = FieldAccessType.AnyAcc;
+                Log.Logs(ex.Message);
             }
             
         }
@@ -1357,8 +1363,9 @@ namespace AcpiWin
             try
             {
                 Enum.TryParse(strType, out Type);
-            }catch
+            }catch(Exception ex)
             {
+                Log.Logs(ex.Message);
                 Type = AcpiRegionType.Others;
             }
         }

@@ -69,7 +69,6 @@ namespace AcpiWin
                     break;
                 case AcpiDataType.Packge:
                     Type = "Packge";
-                    //System.Diagnostics.Debug.Assert(false);
                     break;
                 case AcpiDataType.Mutex:
                     Type = "Mutex";

@@ -128,6 +128,7 @@ namespace AcpiWin
                         catch (Exception e)
                         {
                             System.Diagnostics.Debug.WriteLine(e.Message);
+                            Log.Logs(e.Message);
                         }
                     }
                     // check the bit value...
@@ -173,6 +174,7 @@ namespace AcpiWin
                     }
                     catch (Exception e)
                     {
+                        Log.Logs(e.Message);
                         System.Diagnostics.Debug.WriteLine(e.Message);
                     }
 
@@ -210,6 +212,7 @@ namespace AcpiWin
             }
             catch (Exception e)
             {
+                Log.Logs(e.Message);
                 throw e;
             }
             return value;
@@ -402,6 +405,7 @@ namespace AcpiWin
                 }
                 catch (Exception e)
                 {
+                    Log.Logs(e.Message);
                     System.Diagnostics.Debug.WriteLine(e.Message);
                     return "";
                 }
@@ -464,6 +468,7 @@ namespace AcpiWin
                             content += AcpiFieldsDecode(root, xmlNode, _TableBinary);
                         } catch (Exception e)
                         {
+                            Log.Logs(e.Message);
                             System.Diagnostics.Debug.WriteLine(e.Message);
                             return "";
                         }
@@ -473,6 +478,7 @@ namespace AcpiWin
                 }
                 catch (Exception e)
                 {
+                    Log.Logs(e.Message);
                     System.Diagnostics.Debug.WriteLine(e.Message);
                 }               
             }
