@@ -30,7 +30,7 @@ namespace AcpiWin
         {
             // This text is always added, making the file longer over time
             // if it is not deleted.
-            return;
+            //return;
             using (StreamWriter sw = File.AppendText(log_file))
             {
                 var currentStack = new System.Diagnostics.StackTrace(true);

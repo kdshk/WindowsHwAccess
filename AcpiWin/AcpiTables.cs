@@ -17,6 +17,7 @@ namespace AcpiWin
     }
     class AcpiTable : IDisposable
     {
+        private AmlMethodBuilder _amlMethodBuilder;
         private const int DisplayOffset = 30;
         public string TableName
         {
@@ -35,6 +36,17 @@ namespace AcpiWin
         }
         private uint _TableSignature;
         private byte[] _TableBinary;
+        public byte[] AmlCode
+        {
+            get
+            {
+                if (_TableBinary.Length > 0x24)
+                {
+                    return _TableBinary.Skip(0x24).ToArray();
+                }
+                return null;
+            }
+        }
         /// <summary>
         /// constructor
         /// </summary>
@@ -78,6 +90,11 @@ namespace AcpiWin
         {
             // table to string.... based on acpi xml 
             return AcpiTableToString();
+        }
+
+        public void SetAmlMethodBuilder(AmlMethodBuilder amlMethodBuilder)
+        {
+            _amlMethodBuilder = amlMethodBuilder;
         }
 
         /// <summary>
@@ -424,14 +441,23 @@ namespace AcpiWin
                             if (Head != null && Head.Attributes["type"].Value == "Header")
                             {
                                 XmlNode stdheader = root.SelectSingleNode("Header");
-                                content = AcpiFieldsDecode(root, stdheader,_TableBinary);
+                                content = "/*\nStandard Table Header:\n" + AcpiFieldsDecode(root, stdheader,_TableBinary) + "*/\n";
                                 // c# aml decode for tables.
                                 if (Head.Attributes["aml"] != null && Head.Attributes["aml"].Value == "true")
                                 {
                                     // parse the table then
                                     AmlDisassemble amlDisassemble = new AmlDisassemble();
                                     content += "\n";
+                                    amlDisassemble.SetAmlMethodBuilder(_amlMethodBuilder);
+                                    // make a define..
+                                    string Header = Util.StringFromBytes(_TableBinary.Take(4).ToArray());
+                                    string OemId = Util.StringFromBytes(_TableBinary.Skip(10).Take(6).ToArray());
+                                    string OemTableId = Util.StringFromBytes(_TableBinary.Skip(16).Take(8).ToArray());
+                                    UInt32 OemRev = BitConverter.ToUInt32(_TableBinary, 24);
+                                    content += string.Format("DefinitionBlock(\"\", \"{0}\", {1}, \"{2}\", \"{3}\", 0x{4:X8})\n", Header, _TableBinary[8], OemId, OemTableId, OemRev) + "{\n";
                                     content += amlDisassemble.DecodeAmlFromTable(_TableBinary);
+                                    content += "}";
+                                    return content;
                                 }
                             }
                             content += "\n";

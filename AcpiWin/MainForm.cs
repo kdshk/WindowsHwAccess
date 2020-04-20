@@ -27,6 +27,7 @@ namespace AcpiWin
         private AmlBuilder amlBuilder = new AmlBuilder();
         private AmlMethod amlMethod = null;// new AmlMethod();
         private Dictionary<string, string> EvalData = new Dictionary<string, string>();
+        private AmlMethodBuilder amlMethodBuilder = new AmlMethodBuilder();
         /// <summary>
         /// Main Form constructor
         /// </summary>
@@ -74,6 +75,10 @@ namespace AcpiWin
             if (type.Name == "AcpiTable")
             {
                 // do a acpi table parser
+                aslText.Text = "";
+                aslText.SelectionStart = 0;
+                aslText.SelectionLength = 0;
+                ((AcpiTable)e.Node.Tag).SetAmlMethodBuilder(amlMethodBuilder);
                 aslText.Text = ((AcpiTable)e.Node.Tag).ToString();
                 return;
             }
@@ -244,13 +249,15 @@ namespace AcpiWin
         {
             //Registry.LocalMachine.OpenSubKey 
             AcpiTables.QueryAcpiTables();
-
             //AcpiTables
             TreeNode root = acpiView.Nodes.Add("Acpi Tables");
             foreach (AcpiTable Table in AcpiTables.Tables)
             {
                 TreeNode rn = root.Nodes.Add(Table.TableName);
                 rn.Tag = Table;
+                if (Table.TableName.Contains("SSDT") || Table.TableName.Contains("DSDT")) {
+                    amlMethodBuilder.AddMethodCollect(Table.AmlCode);
+                }
             }
             root.Expand();
         }

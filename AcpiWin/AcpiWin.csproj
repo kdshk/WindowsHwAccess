@@ -82,6 +82,7 @@
     <Compile Include="AmlDebug.cs" />
     <Compile Include="AmlDisassemble.cs" />
     <Compile Include="AmlMethod.cs" />
+    <Compile Include="AmlMethodBuilder.cs" />
     <Compile Include="AmlMethodData.cs" />
     <Compile Include="AmlOp.cs" />
     <Compile Include="ArgInput.cs">
@@ -112,6 +113,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="util.cs" />
     <EmbeddedResource Include="ArgInput.resx">
       <DependentUpon>ArgInput.cs</DependentUpon>
     </EmbeddedResource>
