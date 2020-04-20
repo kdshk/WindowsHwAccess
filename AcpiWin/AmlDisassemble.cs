@@ -495,9 +495,9 @@ namespace AcpiWin
         private string BankFieldOpcodeHandler(ref int offset)
         {
             offset++;
+            int end = offset;
             int Length = GetPackageLength(ref offset);
-            int end = offset + Length - 1;
-
+            end += Length;
             //string FeildName = NameString(ref offset);
             string strFields = string.Format("{0}BankField({1},{2},{3},{4})", "", NameString(ref offset), NameString(ref offset),
                 TermArg(ref offset), FieldFlags(_AmlBinary[offset]));
@@ -768,21 +768,23 @@ namespace AcpiWin
         private string IndexFieldOpcodeHandler(ref int offset)
         {
             offset++;
-            int Length = GetPackageLength(ref offset);
-            int end = offset + Length - 1;
-
+            int PkgEnd = offset;
+            int PkgLength = GetPackageLength(ref offset);
+            PkgEnd += PkgLength;
+            //int LocalOffset = offset;
             //string FeildName = NameString(ref offset);
-            string strFields = string.Format("{0}IndexField({1},{2},{3},{4})", "", NameString(ref offset), NameString(ref offset),
+            string strFields = string.Format("{0}IndexField({1},{2},{3})", "", NameString(ref offset), NameString(ref offset),
                 FieldFlags(_AmlBinary[offset]));
+            
             offset++;
             // point to field lists now
-            if (offset < end)
+            if (offset < PkgEnd)
             {
                 string Format = "\n{0}{1},{2}";
                 string strField = "";
                 strFields += "\n" + GetSpace() + "{";
                 _ScopeLevel++;
-                strFields += FieldList(ref offset, end);
+                strFields += FieldList(ref offset, PkgEnd);
                 _ScopeLevel--;
                 strFields += string.Format("\n{0}", GetSpace()) + "}";
             }
